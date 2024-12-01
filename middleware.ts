@@ -22,6 +22,7 @@ export default async function middleware(req: NextRequest) {
     .get("host")!
     .replace(".localhost:3000", `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`);
 
+  console.log("hostname: ", hostname);
   // special case for Vercel preview deployment URLs
   if (
     hostname.includes("---") &&
@@ -33,19 +34,26 @@ export default async function middleware(req: NextRequest) {
   }
 
   const searchParams = req.nextUrl.searchParams.toString();
+  console.log("searchParams:", searchParams);
+
   // Get the pathname of the request (e.g. /, /about, /blog/first-post)
   const path = `${url.pathname}${
     searchParams.length > 0 ? `?${searchParams}` : ""
   }`;
+  console.log("path: ", path);
 
-  // rewrites for app pages
+  // If host url is app.root, redirect to /app/path.
   if (hostname == `app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) {
     const session = await getToken({ req });
     if (!session && path !== "/login") {
+      // If not logged in, and not going to login page, redirect to login.
       return NextResponse.redirect(new URL("/login", req.url));
     } else if (session && path == "/login") {
+      // If already logged in, and going to login page, redirect to home page.
       return NextResponse.redirect(new URL("/", req.url));
     }
+    // Otherwise, if logged in and not targeting login page, or not logged in and going
+    // anywhere but login, redirect to /app/path
     return NextResponse.rewrite(
       new URL(`/app${path === "/" ? "" : path}`, req.url),
     );
@@ -59,6 +67,7 @@ export default async function middleware(req: NextRequest) {
   }
 
   // rewrite root application to `/home` folder
+  // If hostname is root, redirect to /home/path
   if (
     hostname === "localhost:3000" ||
     hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN
@@ -69,5 +78,6 @@ export default async function middleware(req: NextRequest) {
   }
 
   // rewrite everything else to `/[domain]/[slug] dynamic route
+  // If targeting custom host, rewrite to /host/path, with [domain] parameter as hostname.
   return NextResponse.rewrite(new URL(`/${hostname}${path}`, req.url));
 }
