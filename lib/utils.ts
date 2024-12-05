@@ -68,7 +68,7 @@ type NonNullableProps<T> = {
 }[keyof T];
 
 export function stripUndefined<T>(obj: T): Pick<T, NonNullableProps<T>> {
-  const result = {} as T;
+  const result: { [k: string]: unknown } = {};
   for (const key in obj) if (obj[key] !== undefined) result[key] = obj[key];
-  return result;
+  return result as Pick<T, NonNullableProps<T>>;
 }
