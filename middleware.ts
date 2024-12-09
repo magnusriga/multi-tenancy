@@ -44,16 +44,19 @@ export default async function middleware(req: NextRequest) {
 
   // If host url is app.root, redirect to /app/path.
   if (hostname == `app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) {
-    const session = await getToken({ req });
+    // const session = await getToken({ req });
+    const session = true;
     if (!session && path !== "/login") {
       // If not logged in, and not going to login page, redirect to login.
       return NextResponse.redirect(new URL("/login", req.url));
     } else if (session && path == "/login") {
       // If already logged in, and going to login page, redirect to home page.
+      console.log(`hostname was app.root, and path was /login, redirecting to ${new URL("/", req.url)}`)
       return NextResponse.redirect(new URL("/", req.url));
     }
     // Otherwise, if logged in and not targeting login page, or not logged in and going
     // anywhere but login, redirect to /app/path
+    console.log(`hostname was app.root, and path was not /login, rewriting request to ${new URL(`/app${path === "/" ? "" : path}`, req.url)}`)
     return NextResponse.rewrite(
       new URL(`/app${path === "/" ? "" : path}`, req.url),
     );
@@ -72,6 +75,7 @@ export default async function middleware(req: NextRequest) {
     hostname === "localhost:3000" ||
     hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN
   ) {
+    console.log(`Rewriting to /home${path}`)
     return NextResponse.rewrite(
       new URL(`/home${path === "/" ? "" : path}`, req.url),
     );

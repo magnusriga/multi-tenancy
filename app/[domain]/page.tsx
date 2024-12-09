@@ -34,9 +34,9 @@ export async function generateStaticParams() {
 export default async function SiteHomePage({
   params,
 }: {
-  params: { domain: string };
+  params: Promise<{ domain: string }>;
 }) {
-  const domain = decodeURIComponent(params.domain);
+  const domain = decodeURIComponent((await params).domain);
   console.log("domain from page: ", domain);
   const [data, posts] = await Promise.all([
     getSiteData(domain),

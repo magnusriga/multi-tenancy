@@ -70,15 +70,24 @@ export const authOptions: NextAuthOptions = {
 };
 
 export function getSession() {
-  return getServerSession(authOptions) as Promise<{
+return {
     user: {
-      id: string;
-      name: string;
-      username: string;
-      email: string;
-      image: string;
-    };
-  } | null>;
+      id: 'one',
+      name: 'mag',
+      username: 'magn',
+      email: 'foo@bar.com',
+      image: '/placeholder'
+    }
+  }
+  // return getServerSession(authOptions) as Promise<{
+  //   user: {
+  //     id: string;
+  //     name: string;
+  //     username: string;
+  //     email: string;
+  //     image: string;
+  //   };
+  // } | null>;
 }
 
 export function withSiteAuth(action: any) {

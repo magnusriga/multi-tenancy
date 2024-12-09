@@ -11,13 +11,16 @@ import { Metadata } from "next";
 export async function generateMetadata({
   params,
 }: {
-  params: { domain: string };
+  params: Promise<{ domain: string }>;
 }): Promise<Metadata | null> {
-  const domain = decodeURIComponent(params.domain);
+  const domain = decodeURIComponent((await params).domain);
+
   const data = await getSiteData(domain);
+
   if (!data) {
     return null;
   }
+
   const {
     name: title,
     description,
@@ -55,22 +58,21 @@ export async function generateMetadata({
     //     },
     //   }),
   };
+
 }
 
 export default async function SiteLayout({
   params,
   children,
 }: {
-  params: { domain: string };
+  params: Promise<{ domain: string }>
   children: ReactNode;
 }) {
-  const domain = decodeURIComponent(params.domain);
+  const domain = decodeURIComponent((await params).domain);
   console.log("domain from layout: ", domain.split(":")[0]);
   const data = await getSiteData(domain);
 
-  if (!data) {
-    notFound();
-  }
+  if (!data) { notFound() }
 
   // Optional: Redirect to custom domain if it exists
   if (

@@ -11,10 +11,10 @@ import { eq } from "drizzle-orm";
 export async function generateMetadata({
   params,
 }: {
-  params: { domain: string; slug: string };
+  params: Promise<{ domain: string; slug: string }>;
 }) {
-  const domain = decodeURIComponent(params.domain);
-  const slug = decodeURIComponent(params.slug);
+  const domain = decodeURIComponent((await params).domain);
+  const slug = decodeURIComponent((await params).slug);
 
   const [data, siteData] = await Promise.all([
     getPostData(domain, slug),
@@ -80,10 +80,10 @@ export async function generateStaticParams() {
 export default async function SitePostPage({
   params,
 }: {
-  params: { domain: string; slug: string };
+  params: Promise<{ domain: string; slug: string }>;
 }) {
-  const domain = decodeURIComponent(params.domain);
-  const slug = decodeURIComponent(params.slug);
+  const domain = decodeURIComponent((await params ).domain);
+  const slug = decodeURIComponent(( await params ).slug);
   const data = await getPostData(domain, slug);
 
   if (!data) {
